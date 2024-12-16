@@ -1,0 +1,40 @@
+{
+  "FindPetsByStatusAsync": [
+    {
+      "Invocation": {
+        "FilePath": "/Users/gp/Library/CloudStorage/Dropbox/downloads/agile_actors/projs/msTests/TestNSwag/generated/PetstoreClient.cs",
+        "ContainingClass": "PetstoreClient",
+        "LineNumber": 397,
+        "ColumnNumber": 70
+      },
+      "Definition": {
+        "FilePath": "/Users/gp/Library/CloudStorage/Dropbox/downloads/agile_actors/projs/msTests/TestNSwag/generated/PetstoreClient.cs",
+        "ContainingClass": "PetstoreClient"
+      }
+    },
+    {
+      "Invocation": {
+        "FilePath": "/Users/gp/Library/CloudStorage/Dropbox/downloads/agile_actors/projs/msTests/TestNSwag/NSwagTests.cs",
+        "ContainingClass": "NSwagTests",
+        "LineNumber": 23,
+        "ColumnNumber": 26
+      },
+      "Definition": {
+        "FilePath": "/Users/gp/Library/CloudStorage/Dropbox/downloads/agile_actors/projs/msTests/TestNSwag/generated/PetstoreClient.cs",
+        "ContainingClass": "PetstoreClient"
+      }
+    },
+    {
+      "Invocation": {
+        "FilePath": "/Users/gp/Library/CloudStorage/Dropbox/downloads/agile_actors/projs/msTests/TestNSwag/NSwagTests.cs",
+        "ContainingClass": "NSwagTests",
+        "LineNumber": 29,
+        "ColumnNumber": 28
+      },
+      "Definition": {
+        "FilePath": "/Users/gp/Library/CloudStorage/Dropbox/downloads/agile_actors/projs/msTests/TestNSwag/PetstoreClientV2.cs",
+        "ContainingClass": "PetstoreClientV2"
+      }
+    }
+  ]
+}

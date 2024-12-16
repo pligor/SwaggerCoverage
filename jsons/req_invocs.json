@@ -1,0 +1,35 @@
+{
+  "POST /pet/{petId}/uploadImage": [],
+  "POST /pet": [],
+  "PUT /pet": [],
+  "GET /pet/findByStatus": [
+    {
+      "Invocation": {
+        "FilePath": "/Users/gp/Library/CloudStorage/Dropbox/downloads/agile_actors/projs/msTests/TestNSwag/NSwagTests.cs",
+        "ContainingClass": "NSwagTests",
+        "LineNumber": 23,
+        "ColumnNumber": 26
+      },
+      "Definition": {
+        "FilePath": "/Users/gp/Library/CloudStorage/Dropbox/downloads/agile_actors/projs/msTests/TestNSwag/generated/PetstoreClient.cs",
+        "ContainingClass": "PetstoreClient"
+      }
+    }
+  ],
+  "GET /pet/findByTags": [],
+  "GET /pet/{petId}": [],
+  "POST /pet/{petId}": [],
+  "DELETE /pet/{petId}": [],
+  "GET /store/inventory": [],
+  "POST /store/order": [],
+  "GET /store/order/{orderId}": [],
+  "DELETE /store/order/{orderId}": [],
+  "POST /user/createWithList": [],
+  "GET /user/{username}": [],
+  "PUT /user/{username}": [],
+  "DELETE /user/{username}": [],
+  "GET /user/login": [],
+  "GET /user/logout": [],
+  "POST /user/createWithArray": [],
+  "POST /user": []
+}
