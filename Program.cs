@@ -22,7 +22,7 @@ class Program
     // await TestExportCoverage(args);
   }
 
-  //dotnet run -- "/Users/gp/Library/CloudStorage/Dropbox/downloads/agile_actors/projs/msTests" "nswag.json" "MyTests.sln"
+  //dotnet run -- "/projs/msTests" "nswag.json" "MyTests.sln"
   public static async Task MySwaggerCoverage(string[] args,
     string sortBy = "Count", string outputCsv = "invocationsCount.csv", string outputPng = "invocationsCount.png", bool debug = false)
   {
