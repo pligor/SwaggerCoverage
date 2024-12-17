@@ -7,10 +7,8 @@ namespace SwaggerCoverage;
 
 public class Tests
 {
-  public static async Task TestExportCoverage(string[] args, string sortBy = "Request")
+  public static async Task TestExportCoverage(string sortBy = "Request")
   {
-    var (nswagJsonPath, solutionPath) = Program.GetPaths(args);
-
     string jsonPath = "jsons/req_invocs.json";
     if (!File.Exists(jsonPath))
     {
@@ -45,7 +43,7 @@ public class Tests
     Plotter.PlotHorizontalBarChart(df, "invocationsCount.png");
   }
   
-  public static async Task TestFilterInvocationsAsync(string[] args)
+  public static async Task TestFilterInvocationsAsync(string nswagJsonPath)
   {
     string invocationsJsonPath = "jsons/invocations.json";
     if (!File.Exists(invocationsJsonPath))
@@ -54,7 +52,6 @@ public class Tests
       return;
     }
 
-    var (nswagJsonPath, _) = Program.GetPaths(args);
     var extractor = new SwaggerRequestExtractor();
     var generatedClientFilePath = extractor.GetGeneratedClientFilePath(nswagJsonPath);
     var className = extractor.GetGeneratedClientClassName(nswagJsonPath);
@@ -75,9 +72,8 @@ public class Tests
     Console.WriteLine(jsonOutputNonMatching);
   }
 
-  public static async Task TestMapInvocationsToDefinitionsAsync(string[] args)
+  public static async Task TestMapInvocationsToDefinitionsAsync(string solutionPath)
   {
-    var (_, solutionPath) = Program.GetPaths(args);
     string[] methodNames = ["FindPetsByStatusAsync"];
 
     var results = await MapInvocationsToDefinitionsAsync(solutionPath, methodNames);
@@ -86,10 +82,8 @@ public class Tests
     Console.WriteLine(jsonOutput);
   }
 
-  public static async Task TestSwaggerExtractor(string[] args)
+  public static async Task TestSwaggerExtractor(string nswagJsonPath)
   {
-    var (nswagJsonPath, _) = Program.GetPaths(args);
-
     var extractor = new SwaggerRequestExtractor();
     var requests = await extractor.ExtractRequestsAsync(nswagJsonPath);
 

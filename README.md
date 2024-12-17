@@ -43,23 +43,58 @@ In modern software development, ensuring that your application effectively utili
 
 ## Usage
 
-Run the analyzer using the `dotnet run` command with the necessary arguments:
+Run the analyzer using the `dotnet run` command with the `swaggerCoverage` command and the necessary options:
 
 ```bash
-dotnet run -- "<rootPath>" "<nswag.json relative path>" "<SolutionRelativePath>"
+dotnet run -- swaggerCoverage --rootPath "<rootPath>" --nswagJson "<nswagJsonRelativePath>" --solution "<SolutionRelativePath>" [options]
 ```
 
 ### Example
 
 ```bash
-dotnet run -- "/projs/msTests" "nswag.json" "MyTests.sln"
+dotnet run -- swaggerCoverage --rootPath "/projs/msTests" --nswagJson "nswag.json" --solution "MyTests.sln" --sortBy "Request" --outputCsv "results/invocations.csv" --outputPng "results/invocationsChart.png" --debug true
 ```
 
-### Arguments
+### Commands and Options
 
-1. **rootPath:** The root directory of your project.
-2. **nswagJsonRelativePath:** The relative path to your `nswag.json` file.
-3. **SolutionRelativePath:** The relative path to your `.sln` (solution) file.
+- `swaggerCoverage`: The primary command to execute the Swagger Coverage Analyzer.
+
+#### Required Options:
+
+- `--rootPath`  
+  **Description:** Path to the root directory of your .NET solution.  
+  **Example:** `"/projs/msTests"`
+
+- `--nswagJson`  
+  **Description:** Relative path to the `nswag.json` file.  
+  **Example:** `"nswag.json"`
+
+- `--solution`  
+  **Description:** Relative path to the `.sln` (solution) file.  
+  **Example:** `"MyTests.sln"`
+
+#### Optional Options:
+
+- `--sortBy`  
+  **Description:** Column to sort the results by.  
+  **Default:** `"Count"`  
+  **Options:** `"Count"`, `"Request"`  
+  **Example:** `"Request"`
+
+- `--outputCsv`  
+  **Description:** Path to the output CSV file.  
+  **Default:** `"invocationsCount.csv"`  
+  **Example:** `"results/invocations.csv"`
+
+- `--outputPng`  
+  **Description:** Path to the output PNG file for the chart.  
+  **Default:** `"invocationsCount.png"`  
+  **Example:** `"results/invocationsChart.png"`
+
+- `--debug`  
+  **Description:** Enable debug mode for detailed console output.  
+  **Default:** `false`  
+  **Example:** `true`
 
 ## How It Works: A Story
 
@@ -104,11 +139,17 @@ Upon successful execution, Swagger Coverage Analyzer generates the following out
 
 ## Debugging
 
-For developers seeking deeper insights during the analysis process, enable the debug mode by setting the `debug` flag to `true` in the `MySwaggerCoverage` method. This will provide detailed console outputs, including:
+For developers seeking deeper insights during the analysis process, enable the debug mode by setting the `--debug` flag to `true` when running the command. This will provide detailed console outputs, including:
 
 - Extracted requests and corresponding method mappings.
 - Invocation details and filtered results.
 - Serialized JSON outputs of internal states for further examination.
+
+### Example with Debug Mode
+
+```bash
+dotnet run -- swaggerCoverage --rootPath "/projs/msTests" --nswagJson "nswag.json" --solution "MyTests.sln" --debug true
+```
 
 ## Contribution
 
@@ -116,11 +157,11 @@ Contributions are welcome! Please fork the repository and submit pull requests f
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the GNU Affero General Public License v3.0.
 
 ## Contact
 
-For any questions or support, please contact [yourname@example.com](mailto:yourname@example.com).
+For any questions or support, please submit an issue in GitHub.
 
 # Acknowledgments
 

@@ -1,33 +1,22 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using SwaggerCoverage;
+﻿using SwaggerCoverage;
 using static SwaggerCoverage.MethodAnalyzer;
-using FluentAssertions;
 using Microsoft.Data.Analysis;
 using System.Globalization;
-using System.Runtime.CompilerServices;
-using System.Diagnostics;
+using System.CommandLine;
+using static SwaggerCoverage.SwaggerCoverageCore;
 
 class Program
 {
-  static async Task Main(string[] args)
+  static async Task<int> Main(string[] args)
   {
-    await MySwaggerCoverage(args);
-    // await TestFindMethodsDefinitionAsync(args);
-    // await TestFindMethodsInvocationsAsync(args);
-    // var results = await TestMapInvocationsToDefinitionsAsync(args);
-    // await TestFilterInvocationsAsync(args);
-    // await TestExportCoverage(args);
+    var rootCommand = BuildRootCommand();
+    return await rootCommand.InvokeAsync(args);
   }
 
   //dotnet run -- "/projs/msTests" "nswag.json" "MyTests.sln"
-  public static async Task MySwaggerCoverage(string[] args,
+  private static async Task MySwaggerCoverage(string nswagJsonPath, string solutionPath,
     string sortBy = "Count", string outputCsv = "invocationsCount.csv", string outputPng = "invocationsCount.png", bool debug = false)
   {
-    var (nswagJsonPath, solutionPath) = GetPaths(args);
-
     var (generatedClientFilePath, className) = ExtractClientInfo(nswagJsonPath, debug);
 
     var requests = await GetAllRequestsFromSwaggerAsync(nswagJsonPath, debug);
@@ -65,120 +54,34 @@ class Program
     Plotter.PlotHorizontalBarChart(df, outputPng, debug: debug);
   }
 
-  private static Dictionary<string, int> CalculateInvocationsCount(Dictionary<string, List<InvocationDefinitionPair>> requestsToInvocations, bool debug)
+  private static RootCommand BuildRootCommand()
   {
-    var invocationsCount = requestsToInvocations.ToDictionary(
-      kvp => kvp.Key,
-      kvp => kvp.Value.Count
-    );
-    if (debug)
+    var rootOption = new Option<string>("--rootPath", "Path to the root directory of the dotnet solution") { IsRequired = true };
+    var nswagJsonOption = new Option<string>("--nswagJson", "Relative path to the nswag.json file") { IsRequired = true };
+    var solutionOption = new Option<string>("--solution", "Relative path to the dotnet solution file") { IsRequired = true };
+    var sortByOption = new Option<string>("--sortBy", () => "Count", "Column to sort by (e.g. Count, Request)");
+    var outputCsvOption = new Option<string>("--outputCsv", () => "invocationsCount.csv", "Path to the output csv file");
+    var outputPngOption = new Option<string>("--outputPng", () => "invocationsCount.png", "Path to the output png file");
+    var debugOption = new Option<bool>("--debug", () => false, "Enable debug mode");
+
+    var swaggerCoverageCommand = new Command("swaggerCoverage", "Calculates the swagger coverage of the dotnet solution")
     {
-      string jsonCount = JsonSerializer.Serialize(invocationsCount, new JsonSerializerOptions { WriteIndented = true });
-      Console.WriteLine(jsonCount);
-    }
-    return invocationsCount;
-  }
+        rootOption, nswagJsonOption, solutionOption, sortByOption, outputCsvOption, outputPngOption, debugOption
+    };
 
-  private static async Task<HashSet<Request>> GetAllRequestsFromSwaggerAsync(string nswagJsonPath, bool debug)
-  {
-    var extractor = new SwaggerRequestExtractor();
-    var requests = await extractor.ExtractRequestsAsync(nswagJsonPath);
-
-    if (debug)
-    {
-      foreach (var request in requests)
-      {
-        Console.WriteLine($"Request: {request}");
-      }
-    }
-
-    return requests;
-  }
-
-  private static (string, string) ExtractClientInfo(string nswagJsonPath, bool debug = false)
-  {
-    var extractor = new SwaggerRequestExtractor();
-    var generatedClientFilePath = extractor.GetGeneratedClientFilePath(nswagJsonPath);
-    var className = extractor.GetGeneratedClientClassName(nswagJsonPath);
-
-    if (debug)
-    {
-      Console.WriteLine($"Generated client file path: {generatedClientFilePath}");
-      Console.WriteLine($"Generated client class name: {className}");
-    }
-
-    return (generatedClientFilePath, className);
-  }
-
-  private static Dictionary<Request, string> GetRequestToMethodNameMapping(HashSet<Request> requests, string generatedClientFilePath, bool debug)
-  {
-    var reqToMethodName = requests.ToDictionary(
-      rr => rr,
-      rr => FindMethodName(generatedClientFilePath, rr.Method, rr.Path)
+    swaggerCoverageCommand.SetHandler(
+        (string rootPath, string nswagJsonRelativePath, string solutionRelativePath, string sortBy, string outputCsv, string outputPng, bool debug) =>
+        {
+          string nswagJsonPath = Path.Combine(rootPath, nswagJsonRelativePath);
+          string solutionPath = Path.Combine(rootPath, solutionRelativePath);
+          return MySwaggerCoverage(nswagJsonPath, solutionPath, sortBy, outputCsv, outputPng, debug);
+        },
+        rootOption, nswagJsonOption, solutionOption, sortByOption, outputCsvOption, outputPngOption, debugOption
     );
 
-    if (debug)
-    {
-      foreach (var kvp in reqToMethodName)
-      {
-        Console.WriteLine($"Request: {kvp.Key} => Method Name: {kvp.Value}");
-      }
-    }
+    var rootCommand = new RootCommand("SwaggerCoverage CLI Tool");
+    rootCommand.AddCommand(swaggerCoverageCommand);
 
-    reqToMethodName.Values.Should().OnlyHaveUniqueItems("Each method name should be uniquely mapped to exactly one request.");
-    return reqToMethodName;
-  }
-
-  public static (string, string) GetPaths(string[] args)
-  {
-    // Display usage instructions if arguments are missing
-    if (args.Length < 2)
-    {
-      throw new Exception("Usage: dotnet run -- <rootPath> <NSwagJsonRelativePath> <SolutionRelativePath>");
-    }
-
-    string rootPath = args[0];
-    string nswagJsonRelativePath = args[1];
-    string solutionRelativePath = args[2];
-
-    string nswagJsonPath = Path.Combine(rootPath, nswagJsonRelativePath);
-    string solutionPath = Path.Combine(rootPath, solutionRelativePath);
-
-    return (nswagJsonPath, solutionPath);
-  }
-
-  private static Dictionary<string, List<InvocationDefinitionPair>> CreateRequestToInvocationsDictionary(
-    Dictionary<Request, string> reqToMethodName,
-    Dictionary<string, List<InvocationDefinitionPair>> invocations,
-    bool debug)
-  {
-    var requestToFilteredInvocations = reqToMethodName.ToDictionary(
-      kvp => kvp.Key.ToString(),
-      kvp => invocations[kvp.Value]
-    );
-
-    if (debug)
-    {
-      Console.WriteLine("\nInvocations\n");
-      string jsonOutput = JsonSerializer.Serialize(requestToFilteredInvocations, new JsonSerializerOptions { WriteIndented = true });
-      Console.WriteLine(jsonOutput);
-    }
-
-    return requestToFilteredInvocations;
-  }
-
-  private static DataFrame ReqCountDictionaryToDataframe(Dictionary<string, int> invocationsCount, string requestColName = "Request", string countColName = "Count", bool debug = false)
-  {
-    var requestColumn = new StringDataFrameColumn(requestColName, invocationsCount.Keys);
-    var countColumn = new Int32DataFrameColumn(countColName, invocationsCount.Values);
-    var df = new DataFrame(requestColumn, countColumn);
-
-    if (debug)
-    {
-      Console.WriteLine("DataFrame created with the following data:");
-      Console.WriteLine(df);
-    }
-
-    return df;
+    return rootCommand;
   }
 }
