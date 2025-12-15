@@ -1,7 +1,20 @@
 #!/bin/bash
 
-# Define the root path and solution file
-ROOT_PATH="C:\Users\SFP7ZGX\Downloads\repos\Post.Taf.BFF"
+# Check if required parameter is provided
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 <ROOT_PATH>"
+    echo ""
+    echo "Parameters:"
+    echo "  ROOT_PATH    Path to the root directory of the project (e.g., C:\\Users\\SFP7ZGX\\Downloads\\repos\\Post.Taf.BFF)"
+    echo ""
+    echo "Example:"
+    echo "  $0 \"C:\\Users\\SFP7ZGX\\Downloads\\repos\\Post.Taf.BFF\""
+    exit 1
+fi
+
+# Get ROOT_PATH from command line argument
+ROOT_PATH="$1"
+# Solution file is hardcoded
 SOLUTION="Post.Taf.BFF.sln"
 
 # Create directories for CSV and PNG results if they don't exist
